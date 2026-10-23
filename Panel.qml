@@ -15,6 +15,8 @@ BarWidget {
     const found = []
     const mons = Hyprland.monitors.values
     for (let i = 0; i < mons.length; i++) {
+      // A disabled output can retain its HDR preset but is not displaying it.
+      if (mons[i].disabled === true) continue
       const ipc = mons[i].lastIpcObject
       const preset = ipc ? String(ipc.colorManagementPreset || "") : ""
       if (preset === "hdr" || preset === "hdredid") found.push(String(mons[i].name))
