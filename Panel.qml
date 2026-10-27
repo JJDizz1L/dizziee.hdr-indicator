@@ -4,6 +4,8 @@ import Quickshell.Hyprland
 import Quickshell.Io
 import qs.Ui
 import qs.Commons
+import qs.Commons as Commons
+import "Model.js" as Model
 
 BarWidget {
   id: root
@@ -19,11 +21,20 @@ BarWidget {
       if (mons[i].disabled === true) continue
       const ipc = mons[i].lastIpcObject
       const preset = ipc ? String(ipc.colorManagementPreset || "") : ""
-      if (preset === "hdr" || preset === "hdredid") found.push(String(mons[i].name))
+      if (preset === "hdr" || preset === "hdredid") {
+        const clean = Model.cleanMonitorName(String(mons[i].name))
+        if (clean) found.push(clean)
+      }
+      if (found.length >= Model.MAX_MONITORS) break
     }
     return found
   }
   readonly property bool hdr: hdrMonitors.length > 0
+
+  Commons.Translations {
+    id: strings
+    directory: Qt.resolvedUrl("i18n")
+  }
 
   function refresh() {
     Hyprland.refreshMonitors()
@@ -75,6 +86,6 @@ BarWidget {
     text: "󱝁"
     fixedWidth: root.bar && root.bar.vertical ? -1 : Style.space(27)
     fixedHeight: root.bar && root.bar.vertical ? Style.space(26) : -1
-    tooltipText: root.hdr ? "HDR enabled (" + root.hdrMonitors.join(", ") + ")" : "HDR disabled"
+    tooltipText: root.hdr ? strings.t("hdr.enabled").arg(root.hdrMonitors.join(", ")) : strings.t("hdr.disabled")
   }
 }
